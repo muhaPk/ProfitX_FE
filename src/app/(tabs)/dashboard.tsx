@@ -1,0 +1,177 @@
+import { useState, useEffect } from 'react';
+import { Pressable, View, Image, Alert, Clipboard } from 'react-native';
+import { Images } from '@/shared/config/Assets';
+import { SafeAreaView } from '@/shared/ui/safe-area-view';
+import { LinkButton } from '@/shared/ui/link-button';
+import { H1, H2, H3, Paragraph } from '@/shared/ui/typography';
+import { router } from 'expo-router';
+import { Button } from '@/shared/ui';
+import CustomInput from '@/shared/ui/Input/input';
+import { useForm } from 'react-hook-form';
+import { Header } from '@/shared/ui/header';
+import { IconWrapper } from '@/shared/ui/icon-wrapper';
+import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
+import { useUnauthGuard } from '@/shared/hooks/useAuthGuard';
+import { useAuthStore } from '@/shared/store/auth.store';
+import { useBitcoin } from '@/shared/hooks/useBitcoin';
+
+
+export default function TabTwoScreen() {
+  // Redirect unauthenticated users to login
+  useUnauthGuard();
+
+  const { user } = useAuthStore();
+  const { 
+    address, 
+    balance, 
+    transactions, 
+    isLoading, 
+    error, 
+    getDepositAddress, 
+    refreshData 
+  } = useBitcoin();
+
+  const [showAddress, setShowAddress] = useState(false);
+
+  const { control } = useForm(
+    {
+      defaultValues: {
+        depositAddress: address?.address || '',
+      },
+    }
+  );
+
+  // Update form when address changes
+  useEffect(() => {
+    if (address) {
+      // Note: setValue is not available on control directly, 
+      // we'll handle this through the form's defaultValues
+    }
+  }, [address]);
+
+  const handleGetDepositAddress = async () => {
+    await getDepositAddress();
+    setShowAddress(true);
+  };
+
+  const copyToClipboard = async () => {
+    if (address?.address) {
+      Clipboard.setString(address.address);
+      Alert.alert('Copied!', 'Bitcoin address copied to clipboard');
+    }
+  };
+
+  const formatBalance = (satoshis: number) => {
+    return (satoshis / 100000000).toFixed(8) + ' BTC';
+  };
+  
+  return ( 
+    <SafeAreaView className=''>
+
+
+      <Header
+        center={<H1>Dashboard</H1>}
+        right={
+          <LinkButton to='/settings' variant='icon' iconFamily='Ionicons' iconName='settings-sharp' />
+        }
+      />
+
+
+      <View className=''>
+
+        {!showAddress && (
+          <Button 
+            variant='active' 
+            label='Get the deposit address' 
+            onPress={handleGetDepositAddress}
+            loading={isLoading}
+            iconFamily='FontAwesome5Brands' 
+            iconName='bitcoin' 
+          />
+        )}
+
+        {showAddress && address && (
+          <View className='bg-bgWrapper rounded-lg p-4'>
+            <View className='flex-row justify-between items-center mb-2'>
+              <H3>Your Bitcoin Address</H3>
+              <Button 
+                variant='default' 
+                label='Copy' 
+                onPress={copyToClipboard}
+                iconFamily='Ionicons' 
+                iconName='copy-outline'
+                className='px-3 py-1'
+              />
+            </View>
+            <CustomInput 
+              control={control}
+              iconFamily='FontAwesome5Brands'
+              iconName='bitcoin'
+              placeholder='Deposit Address'
+              name="depositAddress"
+              isDisabled={true}
+            />
+            
+            {balance && (
+              <View className='mt-4 p-3 bg-green-100 rounded-lg'>
+                <H3 className='text-green-800'>Current Balance</H3>
+                <Paragraph className='text-green-700'>
+                  {formatBalance(balance.balance)} 
+                  {balance.unconfirmedBalance > 0 && (
+                    <Paragraph className='text-orange-600'>
+                      (+{formatBalance(balance.unconfirmedBalance)} pending)
+                    </Paragraph>
+                  )}
+                </Paragraph>
+              </View>
+            )}
+
+            <Button 
+              variant='default' 
+              label='Refresh Balance' 
+              onPress={refreshData}
+              loading={isLoading}
+              iconFamily='Ionicons' 
+              iconName='refresh-outline'
+              className='mt-3'
+            />
+          </View>
+        )}
+
+        {error && (
+          <View className='mt-4 p-3 bg-red-100 rounded-lg'>
+            <Paragraph className='text-red-700'>{error}</Paragraph>
+          </View>
+        )}
+
+      </View>
+
+      <Pressable 
+        className='flex-row justify-between items-center mt-4 bg-bgWrapper rounded-lg px-2 pt-1 pb-2'
+        onPress={() => router.push('/transactions')}
+      >
+        <View>
+          <H3>Deposits</H3>
+          <Paragraph>
+            {transactions.length > 0 
+              ? `${transactions.length} transactions` 
+              : 'No transactions yet'
+            }
+          </Paragraph>
+        </View>
+        <FontIcon iconFamily='MaterialIcons' iconName='keyboard-arrow-right' />
+      </Pressable>
+
+      <View className='flex-row justify-between items-center mt-4 bg-bgWrapper rounded-lg px-2 pt-1 pb-2'>
+        <View>
+          <H3>Earnings</H3>
+          <Paragraph>Earnings history</Paragraph>
+        </View>
+        <FontIcon iconFamily='MaterialIcons' iconName='keyboard-arrow-right' />
+      </View>
+
+
+    </SafeAreaView>
+  );
+}
+
