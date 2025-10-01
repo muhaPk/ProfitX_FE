@@ -32,6 +32,8 @@ const CustomInput: FC<FormData> = ({ className = '', type = 'input', isDisabled 
         </>
     );
 
+    const [isFocused, setIsFocused] = React.useState(false);
+
     const renderInput = ({ onChange, onBlur, value }: { onChange: any; onBlur: any; value: any }) => {
         return (
             <TextInput
@@ -43,11 +45,15 @@ const CustomInput: FC<FormData> = ({ className = '', type = 'input', isDisabled 
                 numberOfLines={type === 'textarea' ? 4 : 1}
 
                 onBlur={() => {
+                    setIsFocused(false);
                     onBlur();
-                } }
+                }}
+
+                onFocus={() => {
+                    setIsFocused(true);
+                }}
 
                 style={type === 'textarea' && { textAlignVertical: 'top' }}
-                // onFocus={}
                 placeholderTextColor={colors.inputPlaceholderColor}
                 underlineColorAndroid='transparent'
                 className='flex-1 py-1 px-2 text-inputColor'
@@ -76,7 +82,7 @@ const CustomInput: FC<FormData> = ({ className = '', type = 'input', isDisabled 
                                 </Text>
                             }
 
-                            <View className={`flex-row justify-between border-0 border-b border-borderColor active:border-primary hover:border-primary focus:border-primary ${isDisabled && 'opacity-50'}`}>
+                            <View className={`flex-row justify-between border-0 border-b ${isFocused ? 'border-primary' : 'border-borderColor'} ${isDisabled && 'opacity-50'}`}>
                                 
                             {reverse
                                 ? <>

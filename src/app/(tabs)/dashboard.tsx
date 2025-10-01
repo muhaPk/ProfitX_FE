@@ -31,27 +31,24 @@ export default function TabTwoScreen() {
     refreshData 
   } = useBitcoin();
 
-  const [showAddress, setShowAddress] = useState(false);
-
-  const { control } = useForm(
+  const { control, reset } = useForm(
     {
       defaultValues: {
-        depositAddress: address?.address || '',
+        depositAddress: '',
       },
     }
   );
 
   // Update form when address changes
   useEffect(() => {
+    console.log('📍 Dashboard address changed:', address);
     if (address) {
-      // Note: setValue is not available on control directly, 
-      // we'll handle this through the form's defaultValues
+      reset({ depositAddress: address.address });
     }
-  }, [address]);
+  }, [address, reset]);
 
   const handleGetDepositAddress = async () => {
     await getDepositAddress();
-    setShowAddress(true);
   };
 
   const copyToClipboard = async () => {
@@ -68,7 +65,6 @@ export default function TabTwoScreen() {
   return ( 
     <SafeAreaView className=''>
 
-
       <Header
         center={<H1>Dashboard</H1>}
         right={
@@ -76,75 +72,63 @@ export default function TabTwoScreen() {
         }
       />
 
-
-      <View className=''>
-
-        {!showAddress && (
-          <Button 
-            variant='active' 
-            label='Get the deposit address' 
-            onPress={handleGetDepositAddress}
-            loading={isLoading}
-            iconFamily='FontAwesome5Brands' 
-            iconName='bitcoin' 
-          />
-        )}
-
-        {showAddress && address && (
-          <View className='bg-bgWrapper rounded-lg p-4'>
-            <View className='flex-row justify-between items-center mb-2'>
-              <H3>Your Bitcoin Address</H3>
-              <Button 
-                variant='default' 
-                label='Copy' 
-                onPress={copyToClipboard}
-                iconFamily='Ionicons' 
-                iconName='copy-outline'
-                className='px-3 py-1'
-              />
-            </View>
-            <CustomInput 
-              control={control}
-              iconFamily='FontAwesome5Brands'
-              iconName='bitcoin'
-              placeholder='Deposit Address'
-              name="depositAddress"
-              isDisabled={true}
-            />
-            
-            {balance && (
-              <View className='mt-4 p-3 bg-green-100 rounded-lg'>
-                <H3 className='text-green-800'>Current Balance</H3>
-                <Paragraph className='text-green-700'>
-                  {formatBalance(balance.balance)} 
-                  {balance.unconfirmedBalance > 0 && (
-                    <Paragraph className='text-orange-600'>
-                      (+{formatBalance(balance.unconfirmedBalance)} pending)
-                    </Paragraph>
-                  )}
-                </Paragraph>
-              </View>
+      {balance && (
+        <View className='mt-4 p-3'>
+          <H3>Current Balance</H3>
+          <Paragraph>
+            {formatBalance(balance.balance)} 
+            {balance.unconfirmedBalance > 0 && (
+              <Paragraph className='text-orange-600'>
+                (+{formatBalance(balance.unconfirmedBalance)} pending)
+              </Paragraph>
             )}
+          </Paragraph>
+        </View>
+      )}
 
+      {!address && (
+        <Button 
+          variant='active' 
+          label='Get the deposit address' 
+          onPress={handleGetDepositAddress}
+          loading={isLoading}
+          iconFamily='FontAwesome5Brands' 
+          iconName='bitcoin' 
+        />
+      )}
+
+      {address && (
+        <View className='bg-bgWrapper rounded-lg p-4'>
+
+          <View className='flex-row justify-between items-center mb-2'>
+            <H3>Your Bitcoin Address</H3>
             <Button 
-              variant='default' 
-              label='Refresh Balance' 
-              onPress={refreshData}
-              loading={isLoading}
+              variant='icon'
+              onPress={copyToClipboard}
               iconFamily='Ionicons' 
-              iconName='refresh-outline'
-              className='mt-3'
+              iconName='copy-outline'
+              className='px-3 py-1'
             />
           </View>
-        )}
 
-        {error && (
-          <View className='mt-4 p-3 bg-red-100 rounded-lg'>
-            <Paragraph className='text-red-700'>{error}</Paragraph>
-          </View>
-        )}
+          <CustomInput 
+            control={control}
+            iconFamily='FontAwesome5Brands'
+            iconName='bitcoin'
+            placeholder='Deposit Address'
+            name="depositAddress"
+            // isDisabled={true}
+          />
 
-      </View>
+        </View>
+      )}
+
+      {error && (
+        <View className='mt-4 p-3 bg-red-100 rounded-lg'>
+          <Paragraph className='text-red-700'>{error}</Paragraph>
+        </View>
+      )}
+
 
       <Pressable 
         className='flex-row justify-between items-center mt-4 bg-bgWrapper rounded-lg px-2 pt-1 pb-2'

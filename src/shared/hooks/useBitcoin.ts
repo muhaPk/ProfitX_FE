@@ -26,6 +26,7 @@ export const useBitcoin = () => {
       method: 'GET',
       loader: setIsLoading,
       dataCallback: (response: BitcoinAddressResponse) => {
+        
         if (response.success) {
           setAddress(response.data);
         } else {
