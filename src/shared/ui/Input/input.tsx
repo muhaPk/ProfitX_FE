@@ -58,7 +58,7 @@ const CustomInput: FC<FormData> = ({ className = '', type = 'input', isDisabled 
                 underlineColorAndroid='transparent'
                 className='flex-1 py-1 px-2 text-inputColor'
                 editable={!isDisabled}
-                // {...rest} // add type=password
+                secureTextEntry={type === 'password'}
             />
         );
     };

@@ -68,7 +68,7 @@ export default function LogIn() {
           <Image source={Images.LOGO} className='w-40 h-40' />
         </View>
 
-        <H1 className='text-center'>Log in 1</H1>
+        <H1 className='text-center'>Log in</H1>
 
 
         <CustomInput 
@@ -98,6 +98,7 @@ export default function LogIn() {
           errors={errors} 
           placeholder={'Password'} 
           name="password"
+          type='password'
           rules={{
               validate: {
                 required: (value: any) => !!value?.trim() || 'Password is required',

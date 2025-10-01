@@ -6,18 +6,18 @@ import { LinkButton } from '@/shared/ui/link-button';
 import { H1, H2, H3, Paragraph } from '@/shared/ui/typography';
 import { router } from 'expo-router';
 import { Button } from '@/shared/ui';
-import CustomInput from '@/shared/ui/Input/input';
-import { useForm } from 'react-hook-form';
+import { TextInput } from 'react-native';
 import { Header } from '@/shared/ui/header';
 import { IconWrapper } from '@/shared/ui/icon-wrapper';
 import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
 import { useUnauthGuard } from '@/shared/hooks/useAuthGuard';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { useBitcoin } from '@/shared/hooks/useBitcoin';
+import { formatBalance } from '@/utils/formatBalance';
+import colors from '@/constants/colors';
 
 
 export default function TabTwoScreen() {
-  // Redirect unauthenticated users to login
   useUnauthGuard();
 
   const { user } = useAuthStore();
@@ -27,28 +27,21 @@ export default function TabTwoScreen() {
     transactions, 
     isLoading, 
     error, 
-    getDepositAddress, 
-    refreshData 
+    getDepositAddress,
+    activateDepositAddress,
   } = useBitcoin();
 
-  const { control, reset } = useForm(
-    {
-      defaultValues: {
-        depositAddress: '',
-      },
-    }
-  );
+  const { bitcoinAddress } = useAuthStore();
 
-  // Update form when address changes
+  // Auto-fetch address on component mount (only if not in store)
   useEffect(() => {
-    console.log('📍 Dashboard address changed:', address);
-    if (address) {
-      reset({ depositAddress: address.address });
+    if (!bitcoinAddress) {
+      getDepositAddress();
     }
-  }, [address, reset]);
+  }, [bitcoinAddress]);
 
-  const handleGetDepositAddress = async () => {
-    await getDepositAddress();
+  const handleActivateDepositAddress = async () => {
+    await activateDepositAddress();
   };
 
   const copyToClipboard = async () => {
@@ -58,9 +51,6 @@ export default function TabTwoScreen() {
     }
   };
 
-  const formatBalance = (satoshis: number) => {
-    return (satoshis / 100000000).toFixed(8) + ' BTC';
-  };
   
   return ( 
     <SafeAreaView className=''>
@@ -73,7 +63,7 @@ export default function TabTwoScreen() {
       />
 
       {balance && (
-        <View className='mt-4 p-3'>
+        <View className='mb-4'>
           <H3>Current Balance</H3>
           <Paragraph>
             {formatBalance(balance.balance)} 
@@ -86,11 +76,11 @@ export default function TabTwoScreen() {
         </View>
       )}
 
-      {!address && (
+      {!address && !isLoading && (
         <Button 
           variant='active' 
-          label='Get the deposit address' 
-          onPress={handleGetDepositAddress}
+          label='Activate Bitcoin Address' 
+          onPress={handleActivateDepositAddress}
           loading={isLoading}
           iconFamily='FontAwesome5Brands' 
           iconName='bitcoin' 
@@ -111,14 +101,16 @@ export default function TabTwoScreen() {
             />
           </View>
 
-          <CustomInput 
-            control={control}
-            iconFamily='FontAwesome5Brands'
-            iconName='bitcoin'
-            placeholder='Deposit Address'
-            name="depositAddress"
-            // isDisabled={true}
-          />
+            <View className='flex-row justify-between border-0 border-b border-borderColor opacity-50'>
+              <FontIcon iconFamily='FontAwesome5Brands' iconName='bitcoin' size={16} color={colors.inputColor} />
+              <TextInput
+                value={address.address}
+                placeholder='Deposit Address'
+                placeholderTextColor={colors.inputPlaceholderColor}
+                className='flex-1 py-1 px-2 text-inputColor'
+                editable={false}
+              />
+            </View>
 
         </View>
       )}

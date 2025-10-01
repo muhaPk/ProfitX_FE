@@ -8,18 +8,26 @@ import {
   BitcoinTransactionsResponse,
   BitcoinBalanceResponse 
 } from '@/shared/types/bitcoin';
-import { API_BITCOIN_ADDRESS, API_BITCOIN_TRANSACTIONS, API_BITCOIN_BALANCE } from '@/shared/config/endpoints';
+import { API_BITCOIN_ADDRESS, API_BITCOIN_TRANSACTIONS, API_BITCOIN_BALANCE, API_BITCOIN_ADDRESS_ACTIVATE } from '@/shared/config/endpoints';
+import { useAuthStore } from '@/shared/store/auth.store';
 
 export const useBitcoin = () => {
-  const [address, setAddress] = useState<BitcoinAddress | null>(null);
   const [transactions, setTransactions] = useState<BitcoinTransaction[]>([]);
   const [balance, setBalance] = useState<BitcoinBalance | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { loadData } = useGenericGet();
+  const { bitcoinAddress, setBitcoinAddress } = useAuthStore();
 
-  // Get user's Bitcoin deposit address
+  // Auto-fetch balance and transactions when address is available
+  useEffect(() => {
+    if (bitcoinAddress) {
+      refreshData();
+    }
+  }, [bitcoinAddress]);
+
+  // Get user's Bitcoin deposit address (if exists)
   const getDepositAddress = async () => {
     await loadData({
       api: API_BITCOIN_ADDRESS,
@@ -28,9 +36,31 @@ export const useBitcoin = () => {
       dataCallback: (response: BitcoinAddressResponse) => {
         
         if (response.success) {
-          setAddress(response.data);
+          console.log('✅ Address found:', response.data);
+          setBitcoinAddress(response.data);
         } else {
-          setError(response.message || 'Failed to get deposit address');
+          console.log('ℹ️ No address found, user needs to activate');
+          setBitcoinAddress(null);
+        }
+      },
+    });
+  };
+
+  // Activate/create new Bitcoin deposit address
+  const activateDepositAddress = async () => {
+    await loadData({
+      api: API_BITCOIN_ADDRESS_ACTIVATE,
+      method: 'POST',
+      loader: setIsLoading,
+      dataCallback: (response: BitcoinAddressResponse) => {
+        console.log('✅ Activate address response:', response);
+        
+        if (response.success) {
+          console.log('✅ Address activated:', response.data);
+          setBitcoinAddress(response.data);
+        } else {
+          console.log('❌ Failed to activate address:', response.message);
+          setError(response.message || 'Failed to activate deposit address');
         }
       },
     });
@@ -38,10 +68,10 @@ export const useBitcoin = () => {
 
   // Get transaction history
   const getTransactions = async () => {
-    if (!address) return;
+    if (!bitcoinAddress) return;
     
     await loadData({
-      api: `${API_BITCOIN_TRANSACTIONS}?address=${address.address}`,
+      api: `${API_BITCOIN_TRANSACTIONS}?address=${bitcoinAddress.address}`,
       method: 'GET',
       loader: setIsLoading,
       dataCallback: (response: BitcoinTransactionsResponse) => {
@@ -56,10 +86,10 @@ export const useBitcoin = () => {
 
   // Get current balance
   const getBalance = async () => {
-    if (!address) return;
+    if (!bitcoinAddress) return;
     
     await loadData({
-      api: `${API_BITCOIN_BALANCE}?address=${address.address}`,
+      api: `${API_BITCOIN_BALANCE}?address=${bitcoinAddress.address}`,
       method: 'GET',
       loader: setIsLoading,
       dataCallback: (response: BitcoinBalanceResponse) => {
@@ -74,29 +104,30 @@ export const useBitcoin = () => {
 
   // Refresh all data
   const refreshData = async () => {
-    if (address) {
+    if (bitcoinAddress) {
       await Promise.all([getBalance(), getTransactions()]);
     }
   };
 
   // Auto-refresh balance every 30 seconds when address is available
-  useEffect(() => {
-    if (!address) return;
+  // useEffect(() => {
+  //   if (!bitcoinAddress) return;
 
-    const interval = setInterval(() => {
-      getBalance();
-    }, 30000); // 30 seconds
+  //   const interval = setInterval(() => {
+  //     getBalance();
+  //   }, 30000); // 30 seconds
 
-    return () => clearInterval(interval);
-  }, [address]);
+  //   return () => clearInterval(interval);
+  // }, [bitcoinAddress]);
 
   return {
-    address,
+    address: bitcoinAddress,
     transactions,
     balance,
     isLoading,
     error,
     getDepositAddress,
+    activateDepositAddress,
     getTransactions,
     getBalance,
     refreshData,

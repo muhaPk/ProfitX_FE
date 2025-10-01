@@ -125,6 +125,7 @@ export default function SignUp() {
           errors={errors} 
           placeholder={'Password'} 
           name="password"
+          type='password'
           rules={{
               validate: {
                 required: (value: any) => !!value?.trim() || 'Email is required',
@@ -141,6 +142,7 @@ export default function SignUp() {
           errors={errors} 
           placeholder={'Password'} 
           name="passwordconf"
+          type='password'
           rules={{
               required: "Please confirm your password",
               validate: (value: string) =>
@@ -157,7 +159,7 @@ export default function SignUp() {
 
           <Paragraph>Already have an account ?</Paragraph>
           <Pressable onPress={() => router.push('/log-in')}>
-            <Paragraph className='font-bold ml-1'>Log in</Paragraph>
+            <Paragraph className='font-bold ml-1 text-primary'>Log in</Paragraph>
           </Pressable>
 
         </View>

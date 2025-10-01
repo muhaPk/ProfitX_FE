@@ -4,5 +4,6 @@ export const API_REFRESH_TOKEN = '/auth/refresh-token';
 
 // Bitcoin endpoints
 export const API_BITCOIN_ADDRESS = '/bitcoin/address';
+export const API_BITCOIN_ADDRESS_ACTIVATE = '/bitcoin/address/activate';
 export const API_BITCOIN_TRANSACTIONS = '/bitcoin/transactions';
 export const API_BITCOIN_BALANCE = '/bitcoin/balance';
