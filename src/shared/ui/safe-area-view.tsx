@@ -4,6 +4,11 @@ import {
   SafeAreaViewProps,
 } from "react-native-safe-area-context";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { cssInterop } from "nativewind";
+import { cn } from "@/utils/cn";
+
+// Enable NativeWind className support for SafeAreaView
+cssInterop(NativeSafeAreaView, { className: "style" });
 
 interface CustomSafeAreaViewProps extends SafeAreaViewProps {
   className?: string;
@@ -23,7 +28,6 @@ export const SafeAreaView = React.forwardRef<any, CustomSafeAreaViewProps>(
     },
     ref
   ) => {
-    const combinedClassName = `flex-1 px-4 bg-bgBody ${className}`.trim();
 
     const content = scrollable ? (
       <ScrollView
@@ -50,7 +54,11 @@ export const SafeAreaView = React.forwardRef<any, CustomSafeAreaViewProps>(
     );
 
     return (
-      <NativeSafeAreaView ref={ref} className={combinedClassName} {...props}>
+      <NativeSafeAreaView 
+        ref={ref} 
+        className={cn("flex-1 px-4 bg-bgBody", className)} 
+        {...props}
+      >
         {wrapped}
       </NativeSafeAreaView>
     );

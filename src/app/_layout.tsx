@@ -24,7 +24,11 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../../assets/fonts/SpaceMono-Regular.ttf'),
-    Oswald: require('../../assets/fonts/Oswald-Regular.ttf'),
+    'Oswald-Light': require('../../assets/fonts/Oswald-ExtraLight.ttf'),
+    'Oswald-Regular': require('../../assets/fonts/Oswald-Regular.ttf'),
+    'Oswald-Medium': require('../../assets/fonts/Oswald-Medium.ttf'),
+    'Oswald-SemiBold': require('../../assets/fonts/Oswald-SemiBold.ttf'),
+    'Oswald-Bold': require('../../assets/fonts/Oswald-Bold.ttf'),
     ...FontAwesome.font,
   });
 

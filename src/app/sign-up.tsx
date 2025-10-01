@@ -49,26 +49,16 @@ export default function SignUp() {
 
     const { passwordRepeat, ...rest } = data; // remove passwordRepeat
     
-    try {
-      await uploadData({
-        api: API_SIGNUP,
-        method: "post",
-        data: rest,
-        dataCallback: (res: ISignupResponse) => {
-          setAuth(res.token, res.user)
-        },
-      });
-      
-      // After successful registration and auth setup, navigate to the two tab
-      router.replace('/(tabs)/dashboard');
-      
-    } catch (error) {
-      console.error('Registration failed:', error);
-      setApiError({
-        statusCode: 500,
-        message: 'There was an error creating your account. Please try again.'
-      });
-    }
+    await uploadData({
+      api: API_SIGNUP,
+      method: "post",
+      data: rest,
+      dataCallback: (res: ISignupResponse) => {
+        setAuth(res.token, res.user);
+        router.replace('/(tabs)/dashboard');
+      },
+    });
+
   };
 
   return (

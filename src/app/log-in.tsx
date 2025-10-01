@@ -1,4 +1,4 @@
-import { Pressable, View, Image } from 'react-native';
+import { Pressable, View, Image, Text } from 'react-native';
 import CustomInput from '@/shared/ui/Input/input';
 import { useForm } from 'react-hook-form';
 import { SafeAreaView } from '@/shared/ui/safe-area-view';
@@ -44,40 +44,31 @@ export default function LogIn() {
     // clear previous API error
     setApiError(null);
     
-    try {
-      await uploadData({
-        api: API_LOGIN,
-        method: "post",
-        data,
-        loader: setIsLoading,
-        dataCallback: (response: LoginResponse) => {
-          // Store auth data in Zustand store
-          setAuth(response.token, response.user);
-        },
-      });
-      
-      // After successful login and auth setup, navigate to the tabs
-      router.replace('/(tabs)/dashboard');
-      
-    } catch (error) {
-      console.error('Login failed:', error);
-      const status = error?.statusCode;
-      const message =
-        status === 400
-          ? 'Invalid email or password. Please check your credentials and try again.'
-          : status === 500
-          ? 'Something went wrong on our end. Please try again later.'
-          : error?.message || 'An unexpected error occurred. Please try again.';
-      setApiError({ message, statusCode: status, name: 'LoginError' });
-    }
+    await uploadData({
+      api: API_LOGIN,
+      method: "post",
+      data,
+      loader: setIsLoading,
+      dataCallback: (response: LoginResponse) => {
+        // Store auth data in Zustand store
+        setAuth(response.token, response.user);
+        // Navigate only on success
+        router.replace('/(tabs)/dashboard');
+      },
+    });
+    
   };
 
+  // flex-1 px-4 bg-bgBody
+
   return (
-    <SafeAreaView className='px-[34px] flex-col justify-center items-center'>
+    <SafeAreaView className='px-[34px] flex-col justify-center'> 
     
         <View className='mb-16 -mt-4 items-center'>
           <Image source={Images.LOGO} className='w-40 h-40' />
         </View>
+
+        <H1 className='text-center'>Log in 1</H1>
 
 
         <CustomInput 
@@ -132,7 +123,7 @@ export default function LogIn() {
         </View>
 
 
-        <View className='flex-row'>
+        <View className='flex-row justify-center'>
 
           <Paragraph>Dont have an account ?</Paragraph>
           <Pressable onPress={() => router.push('/sign-up')}>
@@ -141,6 +132,7 @@ export default function LogIn() {
 
         </View>
 
+      
 
     </SafeAreaView>
   );

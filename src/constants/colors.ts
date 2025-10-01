@@ -1,10 +1,8 @@
-module.exports = {
-  
+export const colors = {
   white: '#ffffff',
   black: '#222020',
   primary: '#f3b206',
   secondary: '#333',
-
 
   bgBody: '#212731',
   bgWrapper: '#29313d',
@@ -29,6 +27,7 @@ module.exports = {
   buttonContactColor: '#000',
 
   // text
+
   titleColor: '#fff',
   h1Color: '#fff',
   h2Color: '#eee',
@@ -58,6 +57,6 @@ module.exports = {
   // switcher
   switcherBg: '#5E64FC',
   switcherColor: '#fff',
-
-
 };
+
+export default colors;
