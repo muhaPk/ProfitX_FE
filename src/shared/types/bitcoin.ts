@@ -1,22 +1,24 @@
 export interface BitcoinAddress {
   id: string;
+  user_id: string;
   address: string;
-  userId: string;
-  label?: string;
+  status: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface BitcoinTransaction {
   id: string;
-  addressId: string;
-  txHash: string;
-  amount: number; // in satoshis
+  address_id: string;
+  tx_hash: string;
+  amount: number; // in satoshis (converted from BigInt)
   confirmations: number;
-  blockHeight?: number;
+  block_height?: number;
   timestamp: string;
-  type: 'received' | 'sent';
-  status: 'pending' | 'confirmed' | 'failed';
+  type: string; // 'received' or 'sent'
+  status: string; // 'pending', 'confirmed', or 'failed'
+  created_at: string;
+  updated_at: string;
 }
 
 export interface BitcoinBalance {

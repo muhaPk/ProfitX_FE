@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGenericGet } from './useGenericGet';
+import { useGenericSet } from './useGenericSet';
 import { 
   BitcoinAddress, 
   BitcoinTransaction, 
@@ -18,14 +19,15 @@ export const useBitcoin = () => {
   const [error, setError] = useState<string | null>(null);
 
   const { loadData } = useGenericGet();
-  const { bitcoinAddress, setBitcoinAddress } = useAuthStore();
+  const { uploadData } = useGenericSet();
+  const { depositAddress, setDepositAddress } = useAuthStore();
 
   // Auto-fetch balance and transactions when address is available
   useEffect(() => {
-    if (bitcoinAddress) {
+    if (depositAddress) {
       refreshData();
     }
-  }, [bitcoinAddress]);
+  }, [depositAddress]);
 
   // Get user's Bitcoin deposit address (if exists)
   const getDepositAddress = async () => {
@@ -37,10 +39,10 @@ export const useBitcoin = () => {
         
         if (response.success) {
           console.log('✅ Address found:', response.data);
-          setBitcoinAddress(response.data);
+          setDepositAddress(response.data);
         } else {
           console.log('ℹ️ No address found, user needs to activate');
-          setBitcoinAddress(null);
+          setDepositAddress(null);
         }
       },
     });
@@ -48,18 +50,16 @@ export const useBitcoin = () => {
 
   // Activate/create new Bitcoin deposit address
   const activateDepositAddress = async () => {
-    await loadData({
+    
+    await uploadData({
       api: API_BITCOIN_ADDRESS_ACTIVATE,
-      method: 'POST',
+      method: 'post',
+      data: {}, // Empty data for POST request
       loader: setIsLoading,
       dataCallback: (response: BitcoinAddressResponse) => {
-        console.log('✅ Activate address response:', response);
-        
         if (response.success) {
-          console.log('✅ Address activated:', response.data);
-          setBitcoinAddress(response.data);
+          setDepositAddress(response.data);
         } else {
-          console.log('❌ Failed to activate address:', response.message);
           setError(response.message || 'Failed to activate deposit address');
         }
       },
@@ -68,10 +68,10 @@ export const useBitcoin = () => {
 
   // Get transaction history
   const getTransactions = async () => {
-    if (!bitcoinAddress) return;
+    if (!depositAddress) return;
     
     await loadData({
-      api: `${API_BITCOIN_TRANSACTIONS}?address=${bitcoinAddress.address}`,
+      api: `${API_BITCOIN_TRANSACTIONS}?address=${depositAddress.address}`,
       method: 'GET',
       loader: setIsLoading,
       dataCallback: (response: BitcoinTransactionsResponse) => {
@@ -86,10 +86,10 @@ export const useBitcoin = () => {
 
   // Get current balance
   const getBalance = async () => {
-    if (!bitcoinAddress) return;
+    if (!depositAddress) return;
     
     await loadData({
-      api: `${API_BITCOIN_BALANCE}?address=${bitcoinAddress.address}`,
+      api: `${API_BITCOIN_BALANCE}?address=${depositAddress.address}`,
       method: 'GET',
       loader: setIsLoading,
       dataCallback: (response: BitcoinBalanceResponse) => {
@@ -104,7 +104,7 @@ export const useBitcoin = () => {
 
   // Refresh all data
   const refreshData = async () => {
-    if (bitcoinAddress) {
+    if (depositAddress) {
       await Promise.all([getBalance(), getTransactions()]);
     }
   };
@@ -121,7 +121,7 @@ export const useBitcoin = () => {
   // }, [bitcoinAddress]);
 
   return {
-    address: bitcoinAddress,
+    depositAddress,
     transactions,
     balance,
     isLoading,

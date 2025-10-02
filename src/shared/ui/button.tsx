@@ -85,6 +85,7 @@ interface Props extends ButtonVariants, Omit<PropsWithChildren<TouchableProps>, 
   loading?: boolean;
   className?: string;
   textClassName?: string;
+  iconClassName?: string;
   icon?: React.ReactNode;
   testID?: string;
   iconFamily?: string;
@@ -102,6 +103,7 @@ export const Button = React.forwardRef<View, Props>(
       loading = false,
       className = '',
       textClassName = '',
+      iconClassName = '',
       icon,
       testID,
       iconFamily,
@@ -123,11 +125,15 @@ export const Button = React.forwardRef<View, Props>(
     const renderIconElement = () => {
         const labelClass = button.variants.variant[variant]?.label;
         const colorKey = labelClass?.replace('text-', '');
-        const iconColor = Colors[colorKey];
+        const defaultIconColor = Colors[colorKey];
+
+        // Check if iconClassName contains a text color class
+        const textColorMatch = iconClassName.match(/text-(\w+)/);
+        const iconColor = textColorMatch ? Colors[textColorMatch[1]] || defaultIconColor : defaultIconColor;
 
         return <>
             { icon && icon }
-            { iconFamily && iconName && <FontIcon iconFamily={iconFamily} iconName={iconName} size={24} color={iconColor} /> }
+            { iconFamily && iconName && <FontIcon iconFamily={iconFamily} iconName={iconName} size={24} color={iconColor} className={iconClassName} /> }
         </>
     };
 

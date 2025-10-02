@@ -66,7 +66,7 @@ export function useAxios() {
     } catch (error: any) {
       if (error?.response?.status === 401) {
         clearAuth();
-        router.replace('/(tabs)/index' as any);
+        router.replace('/log-in' as any);
       } else if (errorHandler) {
         errorHandler(error?.response?.data || "An unknown eror occured");
       }
@@ -134,7 +134,7 @@ export function useAxios() {
       
       if (error?.response?.status === 401) {
         clearAuth();
-        router.replace('/(tabs)/index' as any);
+        router.replace('/log-in' as any);
         errorMessage = "Unauthorized";
       } else if (error?.response?.status === 413) {
         errorMessage = "File too large. Please select a smaller file.";

@@ -6,9 +6,9 @@ import { BitcoinAddress } from '@/shared/types/bitcoin'
 interface AuthState {
   token: string | null
   user: any | null
-  bitcoinAddress: BitcoinAddress | null
+  depositAddress: BitcoinAddress | null
   setAuth: (token: string, user: any) => void
-  setBitcoinAddress: (address: BitcoinAddress | null) => void
+  setDepositAddress: (address: BitcoinAddress | null) => void
   clearAuth: () => void
 }
 
@@ -17,10 +17,10 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       token: null,
       user: null,
-      bitcoinAddress: null,
+      depositAddress: null,
       setAuth: (token, user) => set({ token, user }),
-      setBitcoinAddress: (bitcoinAddress) => set({ bitcoinAddress }),
-      clearAuth: () => set({ token: null, user: null, bitcoinAddress: null }),
+      setDepositAddress: (depositAddress) => set({ depositAddress }),
+      clearAuth: () => set({ token: null, user: null, depositAddress: null }),
     }),
     {
       name: 'auth-storage', // storage key

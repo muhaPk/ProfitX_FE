@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Pressable, View, Image, Alert, Clipboard } from 'react-native';
+import { Pressable, View, Image, Alert } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { Images } from '@/shared/config/Assets';
 import { SafeAreaView } from '@/shared/ui/safe-area-view';
 import { LinkButton } from '@/shared/ui/link-button';
@@ -20,9 +21,10 @@ import colors from '@/constants/colors';
 export default function TabTwoScreen() {
   useUnauthGuard();
 
-  const { user } = useAuthStore();
+  const [isCopying, setIsCopying] = useState(false);
+
   const { 
-    address, 
+    depositAddress, 
     balance, 
     transactions, 
     isLoading, 
@@ -31,23 +33,23 @@ export default function TabTwoScreen() {
     activateDepositAddress,
   } = useBitcoin();
 
-  const { bitcoinAddress } = useAuthStore();
-
   // Auto-fetch address on component mount (only if not in store)
   useEffect(() => {
-    if (!bitcoinAddress) {
+    if (!depositAddress) {
       getDepositAddress();
     }
-  }, [bitcoinAddress]);
+  }, [depositAddress]);
 
   const handleActivateDepositAddress = async () => {
     await activateDepositAddress();
   };
 
   const copyToClipboard = async () => {
-    if (address?.address) {
-      Clipboard.setString(address.address);
-      Alert.alert('Copied!', 'Bitcoin address copied to clipboard');
+    if (depositAddress?.address) {
+      setIsCopying(true);
+      await Clipboard.setStringAsync(depositAddress.address);
+      
+      setTimeout(() => setIsCopying(false), 1000);
     }
   };
 
@@ -76,10 +78,10 @@ export default function TabTwoScreen() {
         </View>
       )}
 
-      {!address && !isLoading && (
+      {!depositAddress && !isLoading && (
         <Button 
           variant='active' 
-          label='Activate Bitcoin Address' 
+          label='Get Deposit Address' 
           onPress={handleActivateDepositAddress}
           loading={isLoading}
           iconFamily='FontAwesome5Brands' 
@@ -87,7 +89,7 @@ export default function TabTwoScreen() {
         />
       )}
 
-      {address && (
+      {depositAddress && (
         <View className='bg-bgWrapper rounded-lg p-4'>
 
           <View className='flex-row justify-between items-center mb-2'>
@@ -97,14 +99,15 @@ export default function TabTwoScreen() {
               onPress={copyToClipboard}
               iconFamily='Ionicons' 
               iconName='copy-outline'
-              className='px-3 py-1'
+              iconClassName={isCopying ? 'text-primary' : ''}
+              className='px-1 py-1'
             />
           </View>
 
             <View className='flex-row justify-between border-0 border-b border-borderColor opacity-50'>
               <FontIcon iconFamily='FontAwesome5Brands' iconName='bitcoin' size={16} color={colors.inputColor} />
               <TextInput
-                value={address.address}
+                value={depositAddress.address}
                 placeholder='Deposit Address'
                 placeholderTextColor={colors.inputPlaceholderColor}
                 className='flex-1 py-1 px-2 text-inputColor'
@@ -112,12 +115,6 @@ export default function TabTwoScreen() {
               />
             </View>
 
-        </View>
-      )}
-
-      {error && (
-        <View className='mt-4 p-3 bg-red-100 rounded-lg'>
-          <Paragraph className='text-red-700'>{error}</Paragraph>
         </View>
       )}
 

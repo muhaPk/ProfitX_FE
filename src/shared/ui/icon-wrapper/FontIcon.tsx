@@ -43,6 +43,7 @@ type Props = {
   size?: number;
   color?: string;
   reverse?: boolean;
+  className?: string;
 };
 
 export const FontIcon: FC<Props> = ({
@@ -50,6 +51,7 @@ export const FontIcon: FC<Props> = ({
   iconName,
   size = 20,
   color = '#ccc',
+  className = '',
 }) => {
   let IconComponent: any = null;
 
@@ -110,7 +112,7 @@ export const FontIcon: FC<Props> = ({
   }
 
   return (
-    <View className={`flex justify-center`}>
+    <View className={`flex justify-center ${className}`}>
       <IconComponent name={iconName} size={size} color={color} />
     </View>
   );
