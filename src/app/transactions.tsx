@@ -9,14 +9,9 @@ import { useBitcoin } from '@/shared/hooks/useBitcoin';
 import { BitcoinTransaction } from '@/shared/types/bitcoin';
 
 export default function TransactionsScreen() {
-  const { transactions, isLoading, getTransactions, address } = useBitcoin();
+  const { transactions, isLoading, getTransactions, depositAddress } = useBitcoin();
   const [filteredTransactions, setFilteredTransactions] = useState<BitcoinTransaction[]>([]);
 
-  useEffect(() => {
-    if (address) {
-      getTransactions();
-    }
-  }, [address]);
 
   useEffect(() => {
     setFilteredTransactions(transactions);

@@ -1,55 +1,52 @@
 import { useState, useEffect } from 'react';
-import { Pressable, View, Image, Alert } from 'react-native';
+import { Pressable, View, Image, Alert, Text } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Images } from '@/shared/config/Assets';
 import { SafeAreaView } from '@/shared/ui/safe-area-view';
 import { LinkButton } from '@/shared/ui/link-button';
 import { H1, H2, H3, Paragraph } from '@/shared/ui/typography';
 import { router } from 'expo-router';
 import { Button } from '@/shared/ui';
-import { TextInput } from 'react-native';
 import { Header } from '@/shared/ui/header';
-import { IconWrapper } from '@/shared/ui/icon-wrapper';
 import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
 import { useUnauthGuard } from '@/shared/hooks/useAuthGuard';
-import { useAuthStore } from '@/shared/store/auth.store';
 import { useBitcoin } from '@/shared/hooks/useBitcoin';
 import { formatBalance } from '@/utils/formatBalance';
 import colors from '@/constants/colors';
+import { useTimeout } from '@/shared/hooks/useTimeout';
 
 
 export default function TabTwoScreen() {
   useUnauthGuard();
 
-  const [isCopying, setIsCopying] = useState(false);
+  const { delay: copyDelay, isExecuting: isCopying } = useTimeout();
+  const { delay: refreshDelay, isExecuting: isRefreshing } = useTimeout();
 
   const { 
     depositAddress, 
     balance, 
     transactions, 
     isLoading, 
-    error, 
-    getDepositAddress,
+    transactionConfirmations,
     activateDepositAddress,
+    getBalance,
+    checkAllTransactionConfirmations,
   } = useBitcoin();
 
-  // Auto-fetch address on component mount (only if not in store)
-  useEffect(() => {
-    if (!depositAddress) {
-      getDepositAddress();
-    }
-  }, [depositAddress]);
 
   const handleActivateDepositAddress = async () => {
     await activateDepositAddress();
   };
 
+  const handleRefreshBalance = async () => {
+    await refreshDelay(1000);
+    await getBalance(true); // Force update on manual refresh
+    await checkAllTransactionConfirmations();
+  };
+
   const copyToClipboard = async () => {
     if (depositAddress?.address) {
-      setIsCopying(true);
+      await copyDelay(1000);
       await Clipboard.setStringAsync(depositAddress.address);
-      
-      setTimeout(() => setIsCopying(false), 1000);
     }
   };
 
@@ -65,16 +62,36 @@ export default function TabTwoScreen() {
       />
 
       {balance && (
-        <View className='mb-4'>
-          <H3>Current Balance</H3>
-          <Paragraph>
-            {formatBalance(balance.balance)} 
-            {balance.unconfirmedBalance > 0 && (
-              <Paragraph className='text-orange-600'>
-                (+{formatBalance(balance.unconfirmedBalance)} pending)
+        <View className='mb-4 flex-row justify-between items-center'>
+
+          <View>
+            <H3>Current Balance</H3>
+            <Paragraph>
+              {formatBalance(balance.balance)} 
+              {balance.unconfirmedBalance > 0 && (
+                <Paragraph className='text-orange-600'>
+                  (+{formatBalance(balance.unconfirmedBalance)} pending)
+                </Paragraph>
+              )}
+            </Paragraph>
+            {transactions.some(tx => tx.status === 'pending' || tx.confirmations < 6) && (
+              <Paragraph className='text-orange-600 text-sm'>
+                {transactions.filter(tx => tx.status === 'pending' || tx.confirmations < 6).length} transaction(s) pending confirmation
               </Paragraph>
             )}
-          </Paragraph>
+          </View>
+
+          <View>
+            <Button 
+              variant='icon'
+              onPress={handleRefreshBalance}
+              iconFamily='MaterialIcons' 
+              iconName='update'
+              iconClassName={isRefreshing ? 'text-primary' : ''}
+              className='px-0 py-1'
+            />
+          </View>
+
         </View>
       )}
 
@@ -100,19 +117,19 @@ export default function TabTwoScreen() {
               iconFamily='Ionicons' 
               iconName='copy-outline'
               iconClassName={isCopying ? 'text-primary' : ''}
-              className='px-1 py-1'
+              className='px-0 py-1'
             />
           </View>
 
             <View className='flex-row justify-between border-0 border-b border-borderColor opacity-50'>
               <FontIcon iconFamily='FontAwesome5Brands' iconName='bitcoin' size={16} color={colors.inputColor} />
-              <TextInput
-                value={depositAddress.address}
-                placeholder='Deposit Address'
-                placeholderTextColor={colors.inputPlaceholderColor}
+              <Text
                 className='flex-1 py-1 px-2 text-inputColor'
-                editable={false}
-              />
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {depositAddress.address}
+              </Text>
             </View>
 
         </View>

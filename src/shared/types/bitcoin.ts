@@ -55,3 +55,19 @@ export interface WebhookTransactionData {
   blockHeight?: number;
   timestamp: string;
 }
+
+export interface TransactionConfirmation {
+  confirmations: number;
+  status: 'pending' | 'confirmed';
+  block_height?: number;
+  confirmed: boolean;
+  received?: number;
+  confirmed_time?: string;
+  error?: string;
+}
+
+export interface TransactionConfirmationResponse {
+  success: boolean;
+  data: TransactionConfirmation;
+  message?: string;
+}

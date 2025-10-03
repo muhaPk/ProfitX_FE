@@ -2,34 +2,47 @@ import { useState, useEffect } from 'react';
 import { useGenericGet } from './useGenericGet';
 import { useGenericSet } from './useGenericSet';
 import { 
-  BitcoinAddress, 
-  BitcoinTransaction, 
-  BitcoinBalance,
   BitcoinAddressResponse,
   BitcoinTransactionsResponse,
-  BitcoinBalanceResponse 
+  BitcoinBalanceResponse,
+  TransactionConfirmationResponse
 } from '@/shared/types/bitcoin';
-import { API_BITCOIN_ADDRESS, API_BITCOIN_TRANSACTIONS, API_BITCOIN_BALANCE, API_BITCOIN_ADDRESS_ACTIVATE } from '@/shared/config/endpoints';
+import { API_BITCOIN_ADDRESS, API_BITCOIN_TRANSACTIONS, API_BITCOIN_BALANCE, API_BITCOIN_ADDRESS_ACTIVATE, API_BITCOIN_TRANSACTION_CONFIRMATIONS } from '@/shared/config/endpoints';
 import { useAuthStore } from '@/shared/store/auth.store';
 
 export const useBitcoin = () => {
-  const [transactions, setTransactions] = useState<BitcoinTransaction[]>([]);
-  const [balance, setBalance] = useState<BitcoinBalance | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { loadData } = useGenericGet();
   const { uploadData } = useGenericSet();
-  const { depositAddress, setDepositAddress } = useAuthStore();
+  const { 
+    depositAddress, 
+    balance, 
+    transactions, 
+    transactionConfirmations,
+    setDepositAddress, 
+    setBalance, 
+    setTransactions, 
+    setTransactionConfirmations 
+  } = useAuthStore();
 
   // Auto-fetch balance and transactions when address is available
   useEffect(() => {
     if (depositAddress) {
-      refreshData();
+      getBalance();
+      getTransactions();
     }
   }, [depositAddress]);
 
-  // Get user's Bitcoin deposit address (if exists)
+  useEffect(() => {
+    if (!depositAddress) {
+      getDepositAddress();
+    }
+  }, [depositAddress]);
+
+
+
   const getDepositAddress = async () => {
     await loadData({
       api: API_BITCOIN_ADDRESS,
@@ -48,7 +61,7 @@ export const useBitcoin = () => {
     });
   };
 
-  // Activate/create new Bitcoin deposit address
+
   const activateDepositAddress = async () => {
     
     await uploadData({
@@ -76,7 +89,7 @@ export const useBitcoin = () => {
       loader: setIsLoading,
       dataCallback: (response: BitcoinTransactionsResponse) => {
         if (response.success) {
-          setTransactions(response.data);
+          setTransactions(response.data); // Store in Zustand
         } else {
           setError(response.message || 'Failed to get transactions');
         }
@@ -85,16 +98,19 @@ export const useBitcoin = () => {
   };
 
   // Get current balance
-  const getBalance = async () => {
+  const getBalance = async (forceUpdate: boolean = false) => {
     if (!depositAddress) return;
     
+    const updateParam = forceUpdate ? '?update=true' : '';
+    
     await loadData({
-      api: `${API_BITCOIN_BALANCE}?address=${depositAddress.address}`,
+      api: `${API_BITCOIN_BALANCE}${updateParam}`,
       method: 'GET',
       loader: setIsLoading,
       dataCallback: (response: BitcoinBalanceResponse) => {
         if (response.success) {
-          setBalance(response.data);
+          console.log('getBalance response:', response.data);
+          setBalance(response.data); // Store in Zustand
         } else {
           setError(response.message || 'Failed to get balance');
         }
@@ -102,23 +118,64 @@ export const useBitcoin = () => {
     });
   };
 
-  // Refresh all data
-  const refreshData = async () => {
-    if (depositAddress) {
-      await Promise.all([getBalance(), getTransactions()]);
+
+  // Get transaction confirmations
+  const getTransactionConfirmations = async (txHash: string) => {
+    await loadData({
+      api: `${API_BITCOIN_TRANSACTION_CONFIRMATIONS}/${txHash}/confirmations`,
+      method: 'GET',
+      loader: setIsLoading,
+      dataCallback: (response: TransactionConfirmationResponse) => {
+        if (response.success) {
+          setTransactionConfirmations({
+            ...transactionConfirmations,
+            [txHash]: response.data
+          }); // Store in Zustand
+        } else {
+          setError(response.message || 'Failed to get transaction confirmations');
+        }
+      },
+    });
+  };
+
+  // Check confirmations for all pending transactions
+  const checkAllTransactionConfirmations = async () => {
+    const pendingTransactions = transactions.filter(tx => 
+      tx.status === 'pending' || tx.confirmations < 6
+    );
+    
+    for (const tx of pendingTransactions) {
+      await getTransactionConfirmations(tx.tx_hash);
     }
   };
 
-  // Auto-refresh balance every 30 seconds when address is available
-  // useEffect(() => {
-  //   if (!bitcoinAddress) return;
 
-  //   const interval = setInterval(() => {
-  //     getBalance();
-  //   }, 30000); // 30 seconds
+  // Combined refresh interval - runs every 30 seconds
+  useEffect(() => {
+    if (!depositAddress) return;
 
-  //   return () => clearInterval(interval);
-  // }, [bitcoinAddress]);
+    const interval = setInterval(async () => {
+      // Always get new transactions
+      await getTransactions();
+      
+      // Check confirmations for pending transactions
+      if (transactions.length > 0) {
+        await checkAllTransactionConfirmations();
+      }
+      
+      // Update balance if there are pending transactions
+      const hasPendingTransactions = transactions.some(tx => 
+        tx.status === 'pending' || tx.confirmations < 6
+      );
+      
+      if (hasPendingTransactions) {
+        await getBalance(true); // Force update when pending transactions
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [depositAddress, transactions]);
+  
 
   return {
     depositAddress,
@@ -126,11 +183,13 @@ export const useBitcoin = () => {
     balance,
     isLoading,
     error,
+    transactionConfirmations,
     getDepositAddress,
     activateDepositAddress,
     getTransactions,
     getBalance,
-    refreshData,
+    getTransactionConfirmations,
+    checkAllTransactionConfirmations,
     setError
   };
 };
