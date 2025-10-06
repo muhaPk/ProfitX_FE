@@ -12,6 +12,7 @@ import CustomInput from '@/shared/ui/Input/input';
 import { Button } from '@/shared/ui';
 import { useAuth } from '@/shared/hooks/useAuthGuard';
 import { useAuthStore } from '@/shared/store/auth.store';
+import WithKeyboard from '@/shared/ui/WithKeyboard';
 
 export default function Settings() {
 
@@ -33,6 +34,75 @@ export default function Settings() {
   );
 
 
+  const renderContent = () => {
+    return (
+          <>
+            <CustomInput 
+              iconName='user'
+              iconFamily='AntDesign'
+              control={control} 
+              errors={errors} 
+              placeholder={'Username'} 
+              name="name"
+              rules={{
+                  validate: {
+                    required: (value: any) => !!value?.trim() || 'Username is required',
+                    minLength: (value: any) =>
+                      value?.trim().length > 3 || 'Username must be at least 4 characters',
+                  },
+                }}
+            />
+
+            <CustomInput 
+              iconName='email'
+              iconFamily='Entypo'
+              control={control} 
+              errors={errors} 
+              placeholder={'Email'} 
+              name="email"
+              rules={{
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Invalid email format',
+                  },
+                  validate: {
+                    required: (value: any) => !!value?.trim() || 'Email is required',
+                    minLength: (value: any) =>
+                      value?.trim().length > 5 || 'Email must be at least 6 characters',
+                  },
+                }}
+            />
+
+            <CustomInput 
+              iconName='user'
+              iconFamily='AntDesign'
+              control={control} 
+              errors={errors} 
+              placeholder={'Withdrawal address'} 
+              name="withdraw"
+              className='mt-8'
+              rules={{
+                  validate: {
+                    required: (value: any) => !!value?.trim() || 'Withdrawal address is required',
+                    minLength: (value: any) =>
+                      value?.trim().length > 3 || 'Withdrawal address must be at least 4 characters',
+                  },
+                }}
+            />
+
+            <Button 
+              variant='active' 
+              label='Logout' 
+              onPress={logout} 
+              iconFamily='Ionicons' 
+              iconName='log-out-outline' 
+              className='mt-auto mb-4'
+            />
+          </>
+    )
+  }
+
+
   return (
     <SafeAreaView>
 
@@ -49,74 +119,9 @@ export default function Settings() {
       />
 
 
-
-      <CustomInput 
-        iconName='user'
-        iconFamily='AntDesign'
-        control={control} 
-        errors={errors} 
-        placeholder={'Username'} 
-        name="name"
-        rules={{
-            validate: {
-              required: (value: any) => !!value?.trim() || 'Username is required',
-              minLength: (value: any) =>
-                value?.trim().length > 3 || 'Username must be at least 4 characters',
-            },
-          }}
-      />
-
-
-      <CustomInput 
-        iconName='email'
-        iconFamily='Entypo'
-        control={control} 
-        errors={errors} 
-        placeholder={'Email'} 
-        name="email"
-        rules={{
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Invalid email format',
-            },
-            validate: {
-              required: (value: any) => !!value?.trim() || 'Email is required',
-              minLength: (value: any) =>
-                value?.trim().length > 5 || 'Email must be at least 6 characters',
-            },
-          }}
-      />
-
-
-
-      <CustomInput 
-        iconName='user'
-        iconFamily='AntDesign'
-        control={control} 
-        errors={errors} 
-        placeholder={'Withdrawal address'} 
-        name="withdraw"
-        className='mt-8'
-        rules={{
-            validate: {
-              required: (value: any) => !!value?.trim() || 'Withdrawal address is required',
-              minLength: (value: any) =>
-                value?.trim().length > 3 || 'Withdrawal address must be at least 4 characters',
-            },
-          }}
-      />
-
-
-
-      <Button 
-        variant='active' 
-        label='Logout' 
-        onPress={logout} 
-        iconFamily='Ionicons' 
-        iconName='log-out-outline' 
-        className='mt-auto mb-4'
-      />
-
+      <WithKeyboard>
+        {renderContent()}
+      </WithKeyboard>
 
     </SafeAreaView>
   );

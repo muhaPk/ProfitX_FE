@@ -17,6 +17,7 @@ import { IconWrapper } from '@/shared/ui/icon-wrapper';
 import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
 import { Header } from '@/shared/ui/header';
 import { useSafeNavigation } from '@/utils/navigation';
+import WithKeyboard from '@/shared/ui/WithKeyboard';
 
 
 
@@ -59,9 +60,90 @@ export default function LogIn() {
     
   };
 
+
+
+
+  const renderContent = () => {
+    return (
+          <>
+            <View className='mt-12 items-center'>
+              <Image source={Images.LOGO} className='w-40 h-40' />
+            </View>
+
+            <View className='flex-1 flex-col justify-center mb-12 px-[34px]'>
+
+
+              <CustomInput 
+                iconName='user'
+                iconFamily='AntDesign'
+                control={control} 
+                errors={errors} 
+                placeholder={'Email'} 
+                name="email"
+                rules={{
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: 'Invalid email format',
+                    },
+                    validate: {
+                      required: (value: any) => !!value?.trim() || 'Email is required',
+                      minLength: (value: any) =>
+                        value?.trim().length > 5 || 'Email must be at least 6 characters',
+                    },
+                  }}
+              />
+
+              <CustomInput 
+                iconName='password'
+                iconFamily='MaterialIcons'
+                control={control} 
+                errors={errors} 
+                placeholder={'Password'} 
+                name="password"
+                type='password'
+                rules={{
+                    validate: {
+                      required: (value: any) => !!value?.trim() || 'Password is required',
+                      minLength: (value: any) =>
+                        value?.trim().length > 5 || 'Password must be at least 6 characters',
+                    },
+                  }}
+              />
+
+              <Pressable onPress={() => router.push('/forgot-password')}>
+                <Paragraph className='mt-8 text-primary'>Forgot Password ?</Paragraph>
+              </Pressable>
+              
+              <View className='flex-row mt-6 mb-2'>
+                  <Button 
+                    label={isLoading ? 'Logging in...' : 'Log in'} 
+                    className='mb-4' 
+                    iconFamily='MaterialIcons' 
+                    iconName='login' 
+                    onPress={handleSubmit(handleLogin)}
+                    disabled={isLoading}
+                    fullWidth
+                  />
+              </View>
+
+
+              <View className='flex-row justify-center'>
+
+                <Paragraph>Dont have an account ?</Paragraph>
+                <Pressable onPress={() => router.push('/sign-up')}>
+                  <Paragraph className='font-bold ml-1 text-primary'>Sign up</Paragraph>
+                </Pressable>
+
+              </View>
+
+            </View>
+          </>
+    )
+  }
+
   return (
 
-    <SafeAreaView> 
+    <SafeAreaView>
     
         <Header
           center={<H1>Log in</H1>}
@@ -73,79 +155,11 @@ export default function LogIn() {
             </Pressable>
           ) : undefined}
         />
+
+        <WithKeyboard>
+          {renderContent()}
+        </WithKeyboard>
         
-        <View className='mt-12 items-center'>
-          <Image source={Images.LOGO} className='w-40 h-40' />
-        </View>
-
-        <View className='flex-1 flex-col justify-center -mt-12 px-[34px]'>
-
-
-          <CustomInput 
-            iconName='user'
-            iconFamily='AntDesign'
-            control={control} 
-            errors={errors} 
-            placeholder={'Email'} 
-            name="email"
-            rules={{
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Invalid email format',
-                },
-                validate: {
-                  required: (value: any) => !!value?.trim() || 'Email is required',
-                  minLength: (value: any) =>
-                    value?.trim().length > 5 || 'Email must be at least 6 characters',
-                },
-              }}
-          />
-
-          <CustomInput 
-            iconName='password'
-            iconFamily='MaterialIcons'
-            control={control} 
-            errors={errors} 
-            placeholder={'Password'} 
-            name="password"
-            type='password'
-            rules={{
-                validate: {
-                  required: (value: any) => !!value?.trim() || 'Password is required',
-                  minLength: (value: any) =>
-                    value?.trim().length > 5 || 'Password must be at least 6 characters',
-                },
-              }}
-          />
-
-          <Pressable onPress={() => router.push('/forgot-password')}>
-            <Paragraph className='mt-8 text-primary'>Forgot Password ?</Paragraph>
-          </Pressable>
-          
-          <View className='flex-row mt-6 mb-2'>
-              <Button 
-                label={isLoading ? 'Logging in...' : 'Log in'} 
-                className='mb-4' 
-                iconFamily='MaterialIcons' 
-                iconName='login' 
-                onPress={handleSubmit(handleLogin)}
-                disabled={isLoading}
-                fullWidth
-              />
-          </View>
-
-
-          <View className='flex-row justify-center'>
-
-            <Paragraph>Dont have an account ?</Paragraph>
-            <Pressable onPress={() => router.push('/sign-up')}>
-              <Paragraph className='font-bold ml-1 text-primary'>Sign up</Paragraph>
-            </Pressable>
-
-          </View>
-
-        </View>
-
     </SafeAreaView>
   );
 }

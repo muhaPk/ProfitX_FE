@@ -14,6 +14,7 @@ import { useGenericSet } from '@/shared/hooks/useGenericSet';
 import { API_SIGNUP } from '@/shared/config/endpoints';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { useSafeNavigation } from '@/utils/navigation';
+import WithKeyboard from '@/shared/ui/WithKeyboard';
 
 interface ISignupResponse {
   token: string;
@@ -61,6 +62,104 @@ export default function SignUp() {
     });
 
   };
+  
+
+  const renderContent = () => {
+    return (
+          <>
+            <View className='mt-12 items-center'>
+                <Image source={Images.LOGO} className='w-40 h-40' />
+              </View>
+
+              <View className='flex-1 flex-col justify-center mb-12 px-[34px]'>
+
+                <CustomInput 
+                  iconName='user'
+                  iconFamily='AntDesign'
+                  control={control} 
+                  errors={errors} 
+                  placeholder={'Username'} 
+                  name="name"
+                  rules={{
+                      validate: {
+                        required: (value: any) => !!value?.trim() || 'Username is required',
+                        minLength: (value: any) =>
+                          value?.trim().length > 3 || 'Username must be at least 4 characters',
+                      },
+                    }}
+                />
+
+                <CustomInput 
+                  iconName='email'
+                  iconFamily='Entypo'
+                  control={control} 
+                  errors={errors} 
+                  placeholder={'Email'} 
+                  name="email"
+                  rules={{
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Invalid email format',
+                      },
+                      validate: {
+                        required: (value: any) => !!value?.trim() || 'Email is required',
+                        minLength: (value: any) =>
+                          value?.trim().length > 5 || 'Email must be at least 6 characters',
+                      },
+                    }}
+                />
+
+                <CustomInput 
+                  iconName='password'
+                  iconFamily='MaterialIcons'
+                  control={control} 
+                  errors={errors} 
+                  placeholder={'Password'} 
+                  name="password"
+                  type='password'
+                  rules={{
+                      validate: {
+                        required: (value: any) => !!value?.trim() || 'Email is required',
+                        minLength: (value: any) =>
+                          value?.trim().length > 5 || 'Email must be at least 6 characters',
+                      },
+                  }}
+                />
+
+                <CustomInput 
+                  iconName='password'
+                  iconFamily='MaterialIcons'
+                  control={control} 
+                  errors={errors} 
+                  placeholder={'Password'} 
+                  name="passwordconf"
+                  type='password'
+                  rules={{
+                      required: "Please confirm your password",
+                      validate: (value: string) =>
+                        value === password || "Passwords do not match",
+                  }}
+                />
+                
+                <View className='mt-10'>
+                    <Button label='Sign up' className='mb-4' iconFamily='MaterialIcons' iconName='login' onPress={handleSubmit(handleSend)} />
+                </View>
+
+
+                <View className='flex-row justify-center mt-1'>
+
+                  <Paragraph>Already have an account ?</Paragraph>
+                  <Pressable onPress={() => router.push('/log-in')}>
+                    <Paragraph className='font-bold ml-1 text-primary'>Log in</Paragraph>
+                  </Pressable>
+
+                </View>
+
+              </View>
+          </>
+    )
+  }
+
 
   return (
 
@@ -76,96 +175,10 @@ export default function SignUp() {
             </Pressable>
           ) : undefined}
         />
-    
-        <View className='mt-12 items-center'>
-          <Image source={Images.LOGO} className='w-40 h-40' />
-        </View>
-
-        <View className='flex-1 flex-col justify-center -mt-12 px-[34px]'>
-
-          <CustomInput 
-            iconName='user'
-            iconFamily='AntDesign'
-            control={control} 
-            errors={errors} 
-            placeholder={'Username'} 
-            name="name"
-            rules={{
-                validate: {
-                  required: (value: any) => !!value?.trim() || 'Username is required',
-                  minLength: (value: any) =>
-                    value?.trim().length > 3 || 'Username must be at least 4 characters',
-                },
-              }}
-          />
-
-          <CustomInput 
-            iconName='email'
-            iconFamily='Entypo'
-            control={control} 
-            errors={errors} 
-            placeholder={'Email'} 
-            name="email"
-            rules={{
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Invalid email format',
-                },
-                validate: {
-                  required: (value: any) => !!value?.trim() || 'Email is required',
-                  minLength: (value: any) =>
-                    value?.trim().length > 5 || 'Email must be at least 6 characters',
-                },
-              }}
-          />
-
-          <CustomInput 
-            iconName='password'
-            iconFamily='MaterialIcons'
-            control={control} 
-            errors={errors} 
-            placeholder={'Password'} 
-            name="password"
-            type='password'
-            rules={{
-                validate: {
-                  required: (value: any) => !!value?.trim() || 'Email is required',
-                  minLength: (value: any) =>
-                    value?.trim().length > 5 || 'Email must be at least 6 characters',
-                },
-            }}
-          />
-
-          <CustomInput 
-            iconName='password'
-            iconFamily='MaterialIcons'
-            control={control} 
-            errors={errors} 
-            placeholder={'Password'} 
-            name="passwordconf"
-            type='password'
-            rules={{
-                required: "Please confirm your password",
-                validate: (value: string) =>
-                  value === password || "Passwords do not match",
-            }}
-          />
-          
-          <View className='mt-10'>
-              <Button label='Sign up' className='mb-4' iconFamily='MaterialIcons' iconName='login' onPress={handleSubmit(handleSend)} />
-          </View>
-
-
-          <View className='flex-row justify-center mt-1'>
-
-            <Paragraph>Already have an account ?</Paragraph>
-            <Pressable onPress={() => router.push('/log-in')}>
-              <Paragraph className='font-bold ml-1 text-primary'>Log in</Paragraph>
-            </Pressable>
-
-          </View>
-
-        </View>
+        
+        <WithKeyboard>
+          {renderContent()}
+        </WithKeyboard>
 
     </SafeAreaView>
 
