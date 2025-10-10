@@ -8,15 +8,13 @@ import { router } from 'expo-router';
 import { Button } from '@/shared/ui';
 import { Header } from '@/shared/ui/header';
 import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
-import { useUnauthGuard } from '@/shared/hooks/useAuthGuard';
-import { useBitcoin } from '@/shared/hooks/useBitcoin';
 import { formatBalance } from '@/utils/formatBalance';
 import colors from '@/constants/colors';
 import { useTimeout } from '@/shared/hooks/useTimeout';
+import { useBitcoinService } from '@/shared/services/BitcoinService';
 
 
 export default function TabTwoScreen() {
-  useUnauthGuard();
 
   const { delay: copyDelay, isExecuting: isCopying } = useTimeout();
   const { delay: refreshDelay, isExecuting: isRefreshing } = useTimeout();
@@ -25,22 +23,19 @@ export default function TabTwoScreen() {
     depositAddress, 
     balance, 
     transactions, 
-    isLoading, 
-    transactionConfirmations,
+    isLoading,
     activateDepositAddress,
-    getBalance,
-    checkAllTransactionConfirmations,
-  } = useBitcoin();
+    performRefresh
+  } = useBitcoinService();
 
 
   const handleActivateDepositAddress = async () => {
     await activateDepositAddress();
   };
-
+  
   const handleRefreshBalance = async () => {
     await refreshDelay(1000);
-    await getBalance(true); // Force update on manual refresh
-    await checkAllTransactionConfirmations();
+    await performRefresh(); // Force sync when manually refreshing
   };
 
   const copyToClipboard = async () => {

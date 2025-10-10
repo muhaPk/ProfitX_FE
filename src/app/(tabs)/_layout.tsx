@@ -1,18 +1,10 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 
 import Colors from '@/constants/colors';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
 
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} className="-mb-[3px]" {...props} />;
-}
 
 export default function TabLayout() {
 
@@ -20,15 +12,30 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
-        tabBarStyle: { backgroundColor: Colors.bgBody },
+        tabBarStyle: { 
+          backgroundColor: Colors.bgWrapper,
+          borderTopWidth: 0,
+        },
         headerShown: useClientOnlyValue(false, true),
       }}>
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Dashboard',
+          title: '',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: () => <FontIcon iconFamily='Foundation' iconName='bitcoin-circle' size={24} color={Colors.primary} />,
+          tabBarLabel: '',
+          tabBarLabelStyle: { display: 'none' },
+        }}
+      />
+      <Tabs.Screen
+        name="withdraw"
+        options={{
+          title: '',
+          headerShown: false,
+          tabBarIcon: () => <FontIcon iconFamily='Entypo' iconName='wallet' size={24} color={Colors.primary} />,
+          tabBarLabel: '',
+          tabBarLabelStyle: { display: 'none' },
         }}
       />
     </Tabs>

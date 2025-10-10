@@ -4,6 +4,8 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { AuthLayout } from '@/shared/ui/AuthLayout';
+import { useBitcoinRefreshService } from '@/shared/services/BitcoinRefreshService';
 
 // Import your global CSS file
 import "../../global.css"
@@ -52,16 +54,21 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
 
+  // Initialize Bitcoin refresh service (only runs for authenticated users with deposit address)
+  useBitcoinRefreshService();
+
   return (
     // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="log-in" options={{ headerShown: false }} />
-        <Stack.Screen name="sign-up" options={{ headerShown: false }} />
-        <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ headerShown: false }} />
-      </Stack>
+      <AuthLayout>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="log-in" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+          <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
+          <Stack.Screen name="settings" options={{ headerShown: false }} />
+        </Stack>
+      </AuthLayout>
     // </ThemeProvider>
   );
 }

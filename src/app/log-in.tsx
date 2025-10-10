@@ -12,7 +12,6 @@ import { API_LOGIN } from '@/shared/config/endpoints';
 import { LoginUserDto, LoginResponse } from '@/shared/types/auth';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { useGenericSet } from '@/shared/hooks/useGenericSet';
-import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 import { IconWrapper } from '@/shared/ui/icon-wrapper';
 import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
 import { Header } from '@/shared/ui/header';
@@ -22,7 +21,6 @@ import WithKeyboard from '@/shared/ui/WithKeyboard';
 
 
 export default function LogIn() {
-  useAuthGuard();
 
   const [isLoading, setIsLoading] = useState(false);
   const { set } = useAxios();

@@ -4,11 +4,9 @@ import { SafeAreaView } from '@/shared/ui/safe-area-view';
 import { LinkButton } from '@/shared/ui/link-button';
 import { H1, H2, H3, Paragraph } from '@/shared/ui/typography';
 import { router } from 'expo-router';
-import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 
 
 export default function Index() {
-  useAuthGuard();
 
   return (
     <SafeAreaView className='flex-1 justify-around px-4'>

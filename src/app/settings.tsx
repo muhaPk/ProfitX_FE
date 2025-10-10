@@ -1,7 +1,5 @@
 import { Pressable, View, Image } from 'react-native';
-import { Images } from '@/shared/config/Assets';
 import { SafeAreaView } from '@/shared/ui/safe-area-view';
-import { LinkButton } from '@/shared/ui/link-button';
 import { H1, H2, H3, Paragraph } from '@/shared/ui/typography';
 import { router } from 'expo-router';
 import { Header } from '@/shared/ui/header';
@@ -10,7 +8,6 @@ import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
 import { useForm } from 'react-hook-form';
 import CustomInput from '@/shared/ui/Input/input';
 import { Button } from '@/shared/ui';
-import { useAuth } from '@/shared/hooks/useAuthGuard';
 import { useAuthStore } from '@/shared/store/auth.store';
 import WithKeyboard from '@/shared/ui/WithKeyboard';
 

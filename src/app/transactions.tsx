@@ -5,11 +5,11 @@ import { Header } from '@/shared/ui/header';
 import { H1, H2, H3, Paragraph } from '@/shared/ui/typography';
 import { LinkButton } from '@/shared/ui/link-button';
 import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
-import { useBitcoin } from '@/shared/hooks/useBitcoin';
+import { useBitcoinService } from '@/shared/services/BitcoinService';
 import { BitcoinTransaction } from '@/shared/types/bitcoin';
 
 export default function TransactionsScreen() {
-  const { transactions, isLoading, getTransactions, depositAddress } = useBitcoin();
+  const { transactions, isLoading, getTransactions, depositAddress } = useBitcoinService();
   const [filteredTransactions, setFilteredTransactions] = useState<BitcoinTransaction[]>([]);
 
 

@@ -1,16 +1,16 @@
 import { Platform } from 'react-native';
 
 const getBaseUrl = () => {
-  // For Android Emulator
+  // For Android Emulator with adb reverse (run: adb reverse tcp:3000 tcp:3000)
   if (Platform.OS === 'android' && __DEV__) {
-    // Use 10.0.2.2 for Android Emulator or your local IP for physical device
-    // Change to your Mac's IP (192.168.0.102) if testing on physical device
-    return "http://192.168.0.102:3000/api/v1";
+    // Using localhost with adb reverse is more reliable than 10.0.2.2
+    return "http://localhost:3000/api/v1";
   }
   
   // For iOS Simulator or physical iOS device on same network
   if (Platform.OS === 'ios' && __DEV__) {
-    return "http://192.168.0.102:3000/api/v1";
+    // iOS Simulator can use localhost directly
+    return "http://localhost:3000/api/v1";
   }
   
   // Production URL (update this when deploying)
@@ -18,3 +18,8 @@ const getBaseUrl = () => {
 };
 
 export const BASE_API_URL = getBaseUrl();
+
+// Debug: Log the API URL in development
+if (__DEV__) {
+  console.log('🔗 API Base URL:', BASE_API_URL);
+}

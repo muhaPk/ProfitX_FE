@@ -10,7 +10,6 @@ import { Images } from '@/shared/config/Assets';
 import { API_FORGOT_PASSWORD, API_RESET_PASSWORD } from '@/shared/config/endpoints';
 import { ForgotPasswordDto, ForgotPasswordResponse, ResetPasswordDto, ResetPasswordResponse } from '@/shared/types/auth';
 import { useGenericSet } from '@/shared/hooks/useGenericSet';
-import { useAuthGuard } from '@/shared/hooks/useAuthGuard';
 import { FontIcon } from '@/shared/ui/icon-wrapper/FontIcon';
 import { Header } from '@/shared/ui/header';
 import { IconWrapper } from '@/shared/ui/icon-wrapper';
@@ -19,7 +18,6 @@ import { useSafeNavigation } from '@/utils/navigation';
 
 
 export default function ForgotPassword() {
-  useAuthGuard();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
